@@ -1,0 +1,116 @@
+package com.xch.lib.fragments.bottom
+
+import android.graphics.Color
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.RelativeLayout
+import androidx.annotation.ColorInt
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.LinearLayoutCompat
+import com.joanzapata.iconify.widget.IconTextView
+import com.xch.lib.R
+import com.xch.lib.fragments.MallFragment
+import me.yokeyword.fragmentation.ISupportFragment
+
+abstract class BaseBottomFragment : MallFragment(), View.OnClickListener {
+    private val mTabBean = ArrayList<BottomTabBean>()
+    val mItemFragments = ArrayList<BottomItemFragment>()
+    private val mItems = LinkedHashMap<BottomTabBean, BottomItemFragment>()
+    private var mCurrentFragment = 0
+
+    //设置首页一打开展示哪个平级的fragment
+    private var mIndexFragment = 0
+    private var mClickedColor = Color.RED
+
+    private lateinit var mBottomBar: LinearLayoutCompat
+
+    abstract fun setItems(builder: ItemBuilder): LinkedHashMap<BottomTabBean, BottomItemFragment>
+
+    override fun setLayout(): Any {
+        return R.layout.fragment_bottom
+    }
+
+    abstract fun setIndexFragment(): Int
+
+    @ColorInt
+    abstract fun setClickedColor(): Int
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mIndexFragment = setIndexFragment()
+        if (setClickedColor() != 0) {
+            mClickedColor = setClickedColor()
+        }
+        val builder = ItemBuilder.builder()
+        val items = setItems(builder)
+        mItems.putAll(items)
+        for ((key, value) in mItems) {
+            mTabBean.add(key)
+            mItemFragments.add(value)
+        }
+    }
+
+    override fun onBindView(savedInstanceState: Bundle?, rootView: View) {
+        mBottomBar = findView(R.id.bottom_bar)
+        val size = mItems.size
+        for (i in 0 until size) {
+            //解析布局并添加进bottomBar里面
+            LayoutInflater.from(context).inflate(R.layout.bottom_item_icon_text, mBottomBar, true)
+
+            val item = mBottomBar.getChildAt(i) as RelativeLayout
+            //为了正确的点击事件
+            item.tag = i
+            item.setOnClickListener(this)
+            val itemIcon = item.getChildAt(0) as IconTextView
+            val itemTitle = item.getChildAt(1) as AppCompatTextView
+            //初始化相应的数据
+            val bean = mTabBean[i]
+            itemIcon.text = bean.icon
+            itemTitle.text = bean.title
+            if (i == mIndexFragment) {
+                itemIcon.setTextColor(mClickedColor)
+                itemTitle.setTextColor(mClickedColor)
+            }
+        }
+        val fragments = mItemFragments.toTypedArray<ISupportFragment>()
+        supportDelegate.loadMultipleRootFragment(
+            R.id.bottom_bar_fragment_container,
+            mIndexFragment,
+            *fragments
+        )
+
+    }
+
+    private fun resetColor(){
+        val count = mBottomBar.childCount
+        for (i in 0 until count){
+            val item = mBottomBar.getChildAt(i) as RelativeLayout
+            val itemIcon = item.getChildAt(0) as IconTextView
+            val itemTitle = item.getChildAt(1) as AppCompatTextView
+            itemIcon.setTextColor(Color.GRAY)
+            itemTitle.setTextColor(Color.GRAY)
+        }
+    }
+
+    private fun changeColor(tabIndex: Int){
+        resetColor()
+        val item = mBottomBar.getChildAt(tabIndex) as RelativeLayout
+        val itemIcon = item.getChildAt(0) as IconTextView
+        val itemTitle = item.getChildAt(1) as AppCompatTextView
+        itemIcon.setTextColor(mClickedColor)
+        itemTitle.setTextColor(mClickedColor)
+    }
+
+    override fun onClick(v: View) {
+        val tabIndex = v.tag as Int
+        changeColor(tabIndex)
+        //显示和隐藏内容部分的
+        supportDelegate.showHideFragment(
+            mItemFragments[tabIndex],
+            mItemFragments[mCurrentFragment]
+        )
+        //先后顺序不能错
+        mCurrentFragment = tabIndex
+    }
+}
