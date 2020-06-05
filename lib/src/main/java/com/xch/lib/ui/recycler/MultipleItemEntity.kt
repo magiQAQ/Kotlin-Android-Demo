@@ -10,6 +10,12 @@ class MultipleItemEntity internal constructor(fields: LinkedHashMap<Any, Any>) :
         multipleFields.putAll(fields)
     }
 
+    companion object {
+        fun builder():MultipleEntityBuilder {
+            return MultipleEntityBuilder()
+        }
+    }
+
     override val itemType: Int
         get() = multipleFields[MultipleFields.ITEM_TYPE] as Int
 

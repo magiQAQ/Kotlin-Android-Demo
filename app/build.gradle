@@ -16,7 +16,15 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true // 是否混淆
+            zipAlignEnabled true // 是否Zipalign优化
+            shrinkResources true // 移除无用资源
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false // 是否混淆
+            zipAlignEnabled false // 是否Zipalign优化
+            shrinkResources false // 移除无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -37,6 +45,5 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation project(':lib')
 }
