@@ -35,6 +35,10 @@ class MultipleRecyclerViewAdapter constructor(data: MutableList<MultipleItemEnti
         fun create(data: MutableList<MultipleItemEntity>): MultipleRecyclerViewAdapter {
             return MultipleRecyclerViewAdapter(data)
         }
+
+        fun create(converter: DataConverter): MultipleRecyclerViewAdapter {
+            return MultipleRecyclerViewAdapter(converter.convert())
+        }
     }
 
     init {
@@ -46,6 +50,10 @@ class MultipleRecyclerViewAdapter constructor(data: MutableList<MultipleItemEnti
         addItemType(ItemType.IMAGE, R.layout.item_multiple_image)
         addItemType(ItemType.TEXT_IMAGE, R.layout.item_multiple_image_text)
         addItemType(ItemType.BANNER, R.layout.item_multiple_banner)
+
+        //设置宽度监听
+        setGridSpanSizeLookup(this)
+
     }
 
     override fun createBaseViewHolder(view: View): MultipleViewHolder {

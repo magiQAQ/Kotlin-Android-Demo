@@ -6,7 +6,7 @@ import com.blankj.utilcode.util.Utils
 import com.xch.lib.util.storage.MemoryStore
 
 object Mall {
-    val configurator:Configurator
+    private val configurator:Configurator
         get() = Configurator.instance
 
     fun init(context:Context) : Configurator{

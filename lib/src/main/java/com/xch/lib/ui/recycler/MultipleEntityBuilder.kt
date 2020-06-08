@@ -15,8 +15,8 @@ class MultipleEntityBuilder {
         return this
     }
 
-    fun setField(key: Any, value: Any): MultipleEntityBuilder {
-        FIELD[key] = value
+    fun setField(key: Any, value: Any?): MultipleEntityBuilder {
+        FIELD[key] = value?:return this
         return this
     }
 
